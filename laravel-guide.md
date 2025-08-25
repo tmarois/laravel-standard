@@ -2,12 +2,11 @@
 
 This guide outlines architecture and coding conventions for Laravel projects. Every contributor must follow these practices.
 
-## Table of Contents
+### Table of Contents
 
 - [Architecture](#architecture)
 - [Philosophy](#philosophy)
 - [Structure](#structure)
-- [Boundaries and Discipline](#boundaries-and-discipline)
 - [Conventions](#conventions)
   - [Class Naming](#class-naming)
   - [File & Folder Structure](#file--folder-structure)
@@ -119,10 +118,6 @@ All business logic resides in service classes. Services coordinate models, jobs,
 ### `App/Support`
 
 Stateless helpers such as formatters or string utilities. They may use static methods or be injected but cannot hold application state, call services, or contain domain-specific behavior. Their sole purpose is to assist other layers with general-purpose logic.
-
-## Boundaries and Discipline
-
-Controllers, services, models, and utilities must respect their boundaries. Every developer is responsible for keeping these rules intact.
 
 ## Conventions
 
