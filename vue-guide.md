@@ -63,8 +63,8 @@ Organized into subfolders:
 
 ### Enums
 
-- Generated automatically to match Laravel enums and are created via `php artisan atlas:export-enums` (see
-[Enum Exporter](../features/enum-exporter.md)).
+- Provide a single source of truth for shared constants (e.g., statuses, roles) so the front-end matches Laravel's enums without magic values.
+- Auto-generated from the backend using `php artisan atlas:export-enums`. See the [Enum Exporter docs](https://github.com/tmarois/atlas-laravel/blob/main/docs/features/enum-exporter.md).
 
 ### Utils
 
