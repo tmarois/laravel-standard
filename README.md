@@ -1,12 +1,13 @@
 # Laravel Standard
 
-This repository defines the **Laravel Standard**—our shared conventions for building applications with Laravel, Vue 3, and Inertia.js. Consistent structure and coding practices make projects easier to maintain and ensure developers and agents can collaborate effectively.
+This repository hosts documentation for the **Laravel Standard**—shared conventions for building applications with Laravel, Vue 3, and Inertia.js. It contains no application code and exists solely as a reference for our standards.
+
+Agents working on any Laravel project must consult these documents, starting with the [Agents Guide](./docs/agents-guide.md), to ensure they follow the required conventions.
 
 ## Guides
 
-Read the following documents for detailed conventions:
+- [Agents Guide](./docs/agents-guide.md) – how to apply these standards when contributing to Laravel projects.
+- [Laravel Guide](./docs/laravel-guide.md) – backend architecture and coding standards.
+- [Vue Guide](./docs/vue-guide.md) – frontend patterns for Vue 3 and Inertia.js.
 
-- [Laravel Guide](./laravel-guide.md) – backend architecture and coding standards.
-- [Vue Guide](./vue-guide.md) – frontend patterns for Vue 3 and Inertia.js.
-
-All developers and agents are expected to follow these guides when working on Laravel projects.
+Always review the relevant guide before committing changes and follow any project-specific `AGENTS.md` instructions.
