@@ -1,254 +1,206 @@
 # Laravel Guide
 
-This guide combines the architecture and coding conventions for the Laravel projects. All contributors must follow these practices.
+This guide outlines architecture and coding conventions for Laravel projects. Every contributor must follow these practices.
+
+### Table of Contents
+
+- [Architecture](#architecture)
+- [Philosophy](#philosophy)
+- [Structure](#structure)
+- [Conventions](#conventions)
+  - [Class Naming](#class-naming)
+  - [File & Folder Structure](#file--folder-structure)
+  - [Variable Naming](#variable-naming)
+  - [Database Naming](#database-naming)
+  - [Method Naming](#method-naming)
+  - [Configuration & Environment](#configuration--environment)
+  - [Exception & Error Handling](#exception--error-handling)
+  - [Formatting](#formatting)
+  - [Language & Terminology](#language--terminology)
 
 ## Architecture
 
-This document defines the structure, boundaries, and design rules for this application. It exists to ensure the codebase remains modular, scalable, testable, and maintainable as it evolves. All developers are expected to understand and follow this architecture without exception.
+Defines the structure and design rules that keep the codebase modular, scalable, testable, and maintainable. Every developer is expected to understand and follow this architecture.
 
 ## Philosophy
 
-The application follows a layered service-oriented architecture. Business logic is isolated in service classes. Controllers act only as request coordinators. Models are used for data mapping and persistence, not behavior. Jobs are queued tasks with minimal logic. Every part of the application must respect its own responsibility and never reach across layers inappropriately.
+The application uses a layered, service-oriented approach. Business logic lives in service classes. Controllers coordinate requests, models map data, and jobs handle queued tasks. Each layer must stay within its responsibility.
 
 ## Structure
 
-### Directories
+The application is organized into the following directories:
 
-    App/
-    ├── Console/
-    │   └── Commands/
-    ├── Contracts/ 
-    ├── Enums/
-    ├── Exceptions/
-    ├── Http/
-    │   ├── Controllers/
-    │   ├── Middleware/
-    │   ├── Requests/
-    │   └── Resources/
-    ├── Jobs/
-    ├── Models/
-    ├── Notifications/
-    ├── Events/
-    ├── Listeners/
-    ├── Providers/
-    └── Services/
+```
+App/
+├── Console/
+│   └── Commands/
+├── Contracts/
+├── Enums/
+├── Exceptions/
+├── Http/
+│   ├── Controllers/
+│   ├── Middleware/
+│   ├── Requests/
+│   └── Resources/
+├── Jobs/
+├── Models/
+├── Notifications/
+├── Events/
+├── Listeners/
+├── Providers/
+└── Services/
+```
 
 ### `App/Console`
 
-This contains the console kernel and configuration for scheduled tasks. It does not contain any logic beyond what Laravel requires to register and schedule commands.
+Contains the console kernel and scheduled task configuration. No additional logic.
 
 ### `App/Console/Commands`
 
-CLI command classes live here. They are responsible for input/output, triggering jobs, or delegating to service classes. No business logic or data access should be placed directly in these commands.
+CLI commands handle input and output, trigger jobs, or call services. They must not contain business logic or data access.
 
 ### `App/Contracts`
 
-All interfaces used for binding services, repositories, or third-party API clients are placed here. These interfaces enable dependency inversion. No logic or implementation lives in this directory.
+Interfaces for services, repositories, or API clients. They enable dependency inversion and hold no implementation.
 
 ### `App/Enums`
 
-This directory holds PHP enums that represent fixed domain values such as statuses, types, or roles. Enums must only be used for clearly bounded values and should not encapsulate workflow logic.
+PHP enums for fixed domain values such as statuses, types, or roles. They should not encapsulate workflow logic.
 
 ### `App/Exceptions`
 
-Custom exception classes live here. These are used to represent meaningful, application-specific failure cases. They must not contain business logic or side effects.
+Custom exception classes representing meaningful, application-specific failures. They contain no business logic or side effects.
 
 ### `App/Events`
 
-Events represent that something has already happened in the application. They are strictly data objects and must not contain any logic, model interaction, or side effects. Events are dispatched by services to signal state transitions, such as `UserRegistered` or `InvoicePaid`.
+Data objects signaling that something happened, such as `UserRegistered` or `InvoicePaid`. They carry no logic, model interaction, or side effects and are dispatched by services.
 
 ### `App/Http/Controllers`
 
-Controllers are the entry point for web and API requests. Their only job is to delegate work to service classes, form requests, or jobs. Controllers must never contain any business rules, database access, or conditional behavior beyond routing.
+Entry point for web and API requests. Controllers delegate to services, form requests, or jobs and must not contain business rules, database access, or branching beyond routing.
 
 ### `App/Http/Middleware`
 
-Middleware operates at the request level to filter, modify, or authorize requests. It must not perform domain actions, business logic, or data access. Middleware is meant for request concerns like headers, auth, throttling, and content-type handling.
+Request-level filters for headers, authentication, throttling, and similar concerns. Middleware must not perform domain actions, business logic, or data access.
 
 ### `App/Http/Requests`
 
-Form request classes centralize validation and authorization. All validation must be placed here — not in controllers or services. These classes are also the only place where validation rules, custom rule objects, and authorization checks should live.
+Centralize validation and authorization. All validation rules, custom rule objects, and authorization checks live here, not in controllers or services.
 
 ### `App/Http/Resources`
 
-This layer is responsible for transforming data for frontend or API consumers. Resources must not access the database or contain side effects. They are serialization-only and should never mutate state or trigger behavior.
+Transform data for frontend or API consumers. Resources cannot access the database, mutate state, or trigger behavior.
 
 ### `App/Jobs`
 
-Jobs encapsulate deferred tasks to be executed asynchronously. Jobs are expected to be small and focused. They are allowed to invoke service classes but must not contain business rules themselves.
+Small, focused tasks executed asynchronously. Jobs may invoke services but must not contain business rules.
 
 ### `App/Listeners`
 
-Listeners handle passive side effects in response to events. They may send notifications, write to logs, or call external systems — but they must not mutate core application state, perform business decisions, or dispatch additional events. Complex side effects should be offloaded to jobs or services.
+Handle side effects in response to events, such as sending notifications or writing logs. They must not mutate core state, make business decisions, or dispatch additional events. Offload complex work to jobs or services.
 
 ### `App/Models`
 
-Eloquent models define the data schema, relationships, accessors, mutators, and scopes. They represent data structures only. Models must never contain behavior that spans domains, perform actions like sending notifications, or invoke services.
+Eloquent models define schema, relationships, accessors, mutators, and scopes. They represent data only and must not send notifications, invoke services, or span domains.
 
 ### `App/Notifications`
 
-This directory contains all outbound communication classes, including Laravel Notifications and custom Mailables. These classes are passive — they format and deliver messages via email, Slack, or other channels. No side effects or business rules are allowed. They must be triggered by services or listeners.
+Outbound communication classes, including Laravel Notifications and Mailables. They format and deliver messages and must be triggered by services or listeners without side effects or business rules.
 
 ### `App/Providers`
 
-Service providers handle application bootstrapping, such as binding interfaces, loading routes, or registering observers. Providers must not contain domain logic or workflow behavior.
+Service providers bootstrap the application by binding interfaces, loading routes, or registering observers. They must not contain domain logic.
 
 ### `App/Services`
 
-All business logic in the application must be placed in service classes. Services coordinate models, jobs, APIs, notifications, and business decisions. No other layer is allowed to contain this logic. Services must be small, composable, and testable. A service should represent a clear business use case or workflow, such as "register user", "send invoice", or "process webhook". Services may depend on other services, interfaces, or helpers, but must not access HTTP request data or render responses.
+All business logic resides in service classes. Services coordinate models, jobs, APIs, notifications, and decisions. They should be small, composable, and testable, each representing a clear use case such as registering a user or processing a webhook. Services must not access HTTP request data or render responses.
 
 ### `App/Support`
 
-Support classes contain reusable, stateless utility logic such as formatters, string manipulation, or time calculations. Support classes may use static methods or act as injected helpers. They must not contain application state, service calls, or domain-specific behavior. Their only purpose is to assist other layers with general-purpose logic.
-
-## Boundaries and Discipline
-
-The success of this architecture depends on discipline. Controllers must not contain logic. Services must not contain view code. Models must not trigger workflows. Utilities must not evolve into service containers. The boundaries between layers must be clear and strictly enforced.
-
-Every developer on the team is responsible for keeping these boundaries intact. This is not a guideline — it is the architecture.
+Stateless helpers such as formatters or string utilities. They may use static methods or be injected but cannot hold application state, call services, or contain domain-specific behavior. Their sole purpose is to assist other layers with general-purpose logic.
 
 ## Conventions
 
-This document defines the naming, structure, and formatting conventions that all developers must follow. These standards exist to ensure the codebase is readable, predictable, and easy to navigate across the entire team.
+These naming and structural conventions keep the codebase readable and predictable. They are enforced during code review.
 
-Conventions are not suggestions. They are enforced during code review and must be followed in all feature and bugfix work.
+### Class Naming
 
----
+- **Models**: singular, PascalCase (e.g. `User`, `InvoiceItem`).
+- **Controllers**: PascalCase with `Controller` suffix (e.g. `UserController`).
+- **Services**: PascalCase with `Service` suffix (e.g. `SubscriptionService`).
+- **Jobs**: PascalCase with verb/action + `Job` (e.g. `SendEmailJob`).
+- **Form Requests**: PascalCase with `Request` suffix (e.g. `StoreUserRequest`).
+- **Resources**: PascalCase with `Resource` suffix (e.g. `UserResource`).
+- **Enums**: PascalCase and clearly scoped (e.g. `UserStatus`).
+- **Events**: PascalCase, past tense, describes something that happened (e.g. `UserRegistered`).
+- **Listeners**: PascalCase, imperative, describes action (e.g. `SendWelcomeEmail`).
+- **Notifications & Mailables**: PascalCase, descriptive; use `Notification` or `Mail` suffix only when necessary (e.g. `PasswordResetNotification`).
 
-## Class Naming
+### File & Folder Structure
 
-### Models
-- Singular, PascalCase.
-- Must match the corresponding table name convention (snake_case, plural).
-- Example: `User`, `InvoiceItem`, `ContactLead`.
+- Place each file in its proper folder as defined in the Architecture section.
+- Group services by domain when needed (e.g. `Services/Users/UserService.php`).
+- Avoid flat "god folders" such as `Services/` or `Jobs/` when domain contexts exist.
 
-### Controllers
-- PascalCase with suffix `Controller`.
-- Example: `UserController`, `AuthController`.
+#### Events & Listeners
 
-### Services
-- PascalCase with suffix `Service`.
-- Example: `SubscriptionService`, `ImportService`.
+- Events live in `App/Events/{Domain}/`.
+- Listeners live in `App/Listeners/{Domain}/`.
+- Group both by domain or feature (e.g. `User/`, `Billing/`, `Auth/`).
+- Events contain only data.
+- Listeners handle side effects like emails, logs, or notifications and must not trigger workflows or mutate domain state directly.
 
-### Jobs
-- PascalCase with verb/action suffix like `Job`.
-- Example: `SendEmailJob`, `ImportCsvJob`.
+### Variable Naming
 
-### Form Requests
-- PascalCase with `Request` suffix.
-- Example: `StoreUserRequest`, `UpdateLeadRequest`.
+- Use `camelCase` for variables, parameters, and methods.
+- Names must be descriptive; avoid abbreviations unless standard.
 
-### Resources
-- PascalCase with `Resource` suffix.
-- Example: `UserResource`, `ThreadMessageResource`.
+#### Booleans
 
-### Enums
-- PascalCase and clearly scoped.
-- Example: `UserStatus`, `PaymentMethod`.
+- Prefix with `is`, `has`, `can`, `should`, or `needs` (e.g. `isAdmin`, `hasAccess`).
 
-### Events
-- PascalCase, past-tense, describes something that **has happened**.
-- Example: `UserRegistered`, `InvoicePaid`.
+#### Collections
 
-### Listeners
-- PascalCase, imperative, describes what the listener **does**.
-- Example: `SendWelcomeEmail`, `SyncContactToCrm`.
+- Use plural nouns (e.g. `$users`, `$invoices`).
 
-### Notifications & Mailables
-- PascalCase, descriptive. Suffixes like `Notification`, `Mail` only when necessary.
-- Example: `PasswordResetNotification`, `WelcomeMail`.
+#### Constants
 
----
+- `UPPER_SNAKE_CASE` (e.g. `MAX_RETRIES`).
 
-## File & Folder Structure
+### Database Naming
 
-- Every file must live in the correct folder as defined in the Architecture section above.
-- Services must be grouped by domain if needed (e.g. `Services/Users/UserService.php`).
-- No flat "god folders" (e.g., `Services/`, `Jobs/`) if domain contexts exist.
+- **Tables**: `snake_case`, plural (e.g. `users`, `invoice_items`).
+- **Columns**: `snake_case`, singular; use `*_id` for foreign keys and `created_at`, `updated_at` for timestamps.
+- **Enum values**: `snake_case` strings or native enums.
+- **Boolean columns**: prefix with `is_`, `has_`, or `can_` (e.g. `is_active`).
 
-### Events & Listeners
+### Method Naming
 
-- Events must live in `App/Events/{Domain}/`.
-- Listeners must live in `App/Listeners/{Domain}/`.
-- Both must be grouped by domain or feature (e.g., `User/`, `Billing/`, `Auth/`).
-- Events must contain no logic — only data.
-- Listeners must only handle **side effects** (emails, logs, notifications). They must not trigger other workflows or mutate domain state directly.
+- Methods must be action-oriented and intention-revealing (e.g. `sendInvoice()`, `syncContacts()`).
+- CRUD services use `create`, `update`, `delete`, `restore`, `list`, `find`, `sync`, `validate`, `resolve`, `dispatch`.
+- Event/state/status methods use verbs like `markAsPaid()`, `setActive()`, `deactivate()`, `archive()`.
 
----
+### Configuration & Environment
 
-## Variable Naming
+- Store API keys and tokens in `.env` and access them via `config/services.php`.
+- Do not call `env()` outside `config/` files.
+- Namespace third-party service credentials under their own config key.
 
-### General Rules
-- Use `camelCase` for all variables, parameters, and method names.
-- Use descriptive, intention-revealing names — no abbreviations unless industry-standard.
+### Exception & Error Handling
 
-### Booleans
-- Prefix with `is`, `has`, `can`, `should`, or `needs`.
-- Example: `isAdmin`, `hasAccess`, `canEdit`, `shouldQueue`.
+- Throw custom exceptions for domain errors.
+- Do not use `abort()` in services.
+- Ensure exceptions are type-safe and traceable.
 
-### Collections
-- Use plural nouns for arrays and collections.
-- Example: `$users`, `$invoices`, `$notifications`.
+### Formatting
 
-### Constants
-- UPPER_SNAKE_CASE.
-- Example: `MAX_RETRIES`, `DEFAULT_TIMEOUT`.
-
----
-
-## Database Naming
-
-- Tables: `snake_case`, plural.
-    - Example: `users`, `invoice_items`, `password_resets`.
-- Columns: `snake_case`, singular.
-    - Use `*_id` for foreign keys (no constraints unless explicitly defined).
-    - Use `created_at`, `updated_at` for timestamps.
-- Enum values: `snake_case` strings or native enums if supported.
-- Boolean columns: prefixed with `is_`, `has_`, `can_`.
-    - Example: `is_active`, `has_error`, `can_login`.
-
----
-
-## Method Naming
-
-- Method names must be action-oriented and intention-revealing.
-- Example: `sendInvoice()`, `updateSubscription()`, `syncContacts()`.
-
-### CRUD naming for services:
-- `create`, `update`, `delete`, `restore`, `list`, `find`, `sync`, `validate`, `resolve`, `dispatch`.
-
-### Events/State/Status methods:
-- `markAsPaid()`, `setActive()`, `deactivate()`, `archive()`.
-
----
-
-## Configuration & Environment
-
-- All API keys and tokens must be stored in `.env` and accessed via `config/services.php`.
-- Never use `env()` outside of `config/` files.
-- All third-party service credentials should be namespaced under their own config key.
-
----
-
-## Exception & Error Handling
-
-- Always throw custom exceptions when representing a domain error.
-- Never use `abort()` in services.
-- All exceptions must be type-safe and traceable through the stack.
-
----
-
-## Formatting
-
-- PSR-12 formatting is enforced via Laravel Pint.
-- Imports must be ordered: classes, then functions, then constants.
+- Follow PSR-12 formatting via Laravel Pint.
+- Order imports: classes, then functions, then constants.
 - No trailing commas on single-line arrays or function calls.
-- Always use short array syntax: `[]`, not `array()`.
+- Use short array syntax `[]`.
 
----
+### Language & Terminology
 
-## Language & Terminology
+- Use consistent domain language.
+- Prefer real-world nouns and verbs over technical names (e.g. `lead`, `contact`, `campaign` instead of `userTag`, `dataBlob`).
 
-- Use consistent domain language throughout the app.
-- Prefer real-world nouns/verbs over technical or implementation-based names.
-- Example: use `lead`, `contact`, `campaign` — not `userTag`, `dataBlob`, `genericObject`.

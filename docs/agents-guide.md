@@ -7,4 +7,4 @@ This project uses Laravel for the backend and Vue 3 with Inertia for the fronten
 
 Always review the appropriate guide before committing changes to ensure the standards are met.
 
-Also, check for any `AGENTS.md` files within the repository and follow their instructions for files within their scope.
+Also, check for any `AGENTS.md` files within the repository and follow their instructions.
