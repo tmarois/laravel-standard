@@ -99,3 +99,5 @@ Organized into subfolders:
 - Forms should always try use `useForm` when possible.
 - **Prefer `computed` properties over `watch`.** Watchers must only be used when no cleaner, declarative solution exists.
 - **Reuse existing utilities before writing new ones.** Promote broadly reusable helpers to `/utils` to avoid duplication and ensure consistency across the app.
+
+<!-- end of Vue Guide -->
