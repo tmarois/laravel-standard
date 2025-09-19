@@ -10,6 +10,7 @@ This document defines the structure and rules for building Vue 3 components usin
 - All logic is extracted to composables or services.
 - Components are atomic, reusable, and scoped.
 - **Avoid `watch`/`watchEffect` unless absolutely necessary.** Prefer `computed` properties or alternative solutions. Watchers are a last resort for handling side effects that cannot be expressed declaratively.
+- **Prefer reuse before creating new code.** Always look for existing utilities, formatters, and parsers before implementing new ones. If a helper looks broadly applicable across multiple domains, implement it as a new utility instead of embedding logic directly inside a single component.
 
 ---
 
@@ -71,6 +72,8 @@ Organized into subfolders:
 
 - Stateless helpers (`formatDate`, `slugify`).
 - No app state, DOM access, or side effects.
+- **Always prefer existing utilities before adding new ones.**
+- If a helper is domain-agnostic and potentially reusable, promote it to a utility instead of leaving it as an inline function inside a component or composable.
 
 ---
 
@@ -95,5 +98,4 @@ Organized into subfolders:
 - Register layouts only at the page level.
 - Forms should always try use `useForm` when possible.
 - **Prefer `computed` properties over `watch`.** Watchers must only be used when no cleaner, declarative solution exists.
-
-<!-- end of Vue Guide -->
+- **Reuse existing utilities before writing new ones.** Promote broadly reusable helpers to `/utils` to avoid duplication and ensure consistency across the app.
