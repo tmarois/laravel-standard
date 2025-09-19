@@ -26,7 +26,7 @@ This document defines the structure and rules for building Vue 3 components usin
 
 ### Components
 - Must be presentational and lean; avoid business logic.
-- Keep components under 300 lines where possible.
+- Keep components under 200 lines where possible.
 - Avoid deeply nested component trees — prefer flatter hierarchies.
 
 ### Styling
