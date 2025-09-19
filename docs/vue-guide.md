@@ -9,6 +9,7 @@ This document defines the structure and rules for building Vue 3 components usin
 - Pages only coordinate — no logic or bloat.
 - All logic is extracted to composables or services.
 - Components are atomic, reusable, and scoped.
+- **Avoid `watch`/`watchEffect` unless absolutely necessary.** Prefer `computed` properties or alternative solutions. Watchers are a last resort for handling side effects that cannot be expressed declaratively.
 
 ---
 
@@ -93,5 +94,6 @@ Organized into subfolders:
 - Use Tailwind for styling; never write custom CSS unless scoped.
 - Register layouts only at the page level.
 - Forms should always try use `useForm` when possible.
+- **Prefer `computed` properties over `watch`.** Watchers must only be used when no cleaner, declarative solution exists.
 
 <!-- end of Vue Guide -->
